@@ -1,8 +1,11 @@
 Author: Kehinde Oduyeye
 # Offboarding-User-Termination-Automation
 
-Device Timeline Automation is a threat-enrichment automation script designed for Security Operations Centers (SOC).
-It ingests IP addresses and URLs from endpoint/network event logs, enriches them through multiple threat-intel sources, and produces a structured, high-fidelity output for triage, hunting, and incident investigation.
+User Termination Workflow is a security automation built on Azure Logic Apps, designed to orchestrate rapid and consistent offboarding actions across identity, endpoint, and collaboration platforms.
+
+It ingests a user email via HTTP or Microsoft Teams interaction, executes a full account containment and device response workflow, and produces structured outputs for audit, tracking, and SOC visibility.
+
+This automation significantly reduces manual effort during user offboarding or insider threat response by coordinating identity revocation, password resets, device isolation, and reporting into a single workflow.
 
 Blog post that goes into more details, can be found here: [https://www.kehinde-oduyeye.dev/#/blog/1764701331243](https://www.kehinde-oduyeye.dev/#/blog/1764701331243)
 
