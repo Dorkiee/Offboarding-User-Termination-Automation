@@ -1,0 +1,184 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "clientId": {
+      "type": "string"
+    },
+    "keyVaultName": {
+      "type": "string"
+    },
+    "tableStorageName": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2019-05-01/workflowdefinition.json#",
+          "actions": {
+
+            "Get_Secret": {
+              "type": "ApiConnection",
+              "inputs": {
+                "method": "get",
+                "path": "/secrets/<secret-name>",
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['keyvault']['connectionId']"
+                  }
+                }
+              }
+            },
+
+            "HTTP_Get_Token": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://login.microsoftonline.com/@{parameters('tenantId')}/oauth2/v2.0/token",
+                "headers": {
+                  "Content-Type": "application/x-www-form-urlencoded"
+                },
+                "body": "client_id=@{parameters('clientId')}&scope=https://graph.microsoft.com/.default&grant_type=client_credentials&client_secret=@{body('Get_Secret')?['value']}"
+              }
+            },
+
+            "Reset_User_Password": {
+              "type": "Http",
+              "inputs": {
+                "method": "PATCH",
+                "uri": "https://graph.microsoft.com/v1.0/users/@{triggerBody()?['email']}",
+                "headers": {
+                  "Authorization": "Bearer @{body('HTTP_Get_Token')?['access_token']}"
+                },
+                "body": {
+                  "passwordProfile": {
+                    "forceChangePasswordNextSignIn": true,
+                    "password": "@{variables('GeneratedPassword')}"
+                  }
+                }
+              }
+            },
+
+            "Revoke_Sessions": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://graph.microsoft.com/v1.0/users/@{triggerBody()?['email']}/revokeSignInSessions",
+                "headers": {
+                  "Authorization": "Bearer @{body('HTTP_Get_Token')?['access_token']}"
+                }
+              }
+            },
+
+            "Get_User_Devices": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://graph.microsoft.com/v1.0/users/@{triggerBody()?['email']}/managedDevices",
+                "headers": {
+                  "Authorization": "Bearer @{body('HTTP_Get_Token')?['access_token']}"
+                }
+              }
+            },
+
+            "For_Each_Device": {
+              "type": "Foreach",
+              "foreach": "@body('Get_User_Devices')?['value']",
+              "actions": {
+
+                "Condition_Device_OS": {
+                  "type": "If",
+                  "expression": {
+                    "equals": [
+                      "@items('For_Each_Device')?['operatingSystem']",
+                      "Windows"
+                    ]
+                  },
+                  "actions": {
+
+                    "Isolate_Device": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "POST",
+                        "uri": "https://api.security.microsoft.com/api/machines/@{items('For_Each_Device')?['id']}/isolate",
+                        "headers": {
+                          "Authorization": "Bearer @{body('HTTP_Get_Token')?['access_token']}"
+                        },
+                        "body": {
+                          "Comment": "Automated isolation via Logic App"
+                        }
+                      }
+                    }
+
+                  }
+                }
+
+              }
+            },
+
+            "Log_To_Table": {
+              "type": "ApiConnection",
+              "inputs": {
+                "method": "post",
+                "path": "/Tables/<table-name>/entities",
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azuretables']['connectionId']"
+                  }
+                },
+                "body": {
+                  "PartitionKey": "UserOffboarding",
+                  "RowKey": "@{triggerBody()?['email']}",
+                  "Status": "Completed",
+                  "Timestamp": "@utcNow()"
+                }
+              }
+            }
+
+          },
+
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        "parameters": {
+          "$connections": {
+            "value": {}
+          }
+        }
+      }
+    }
+  ]
+}
