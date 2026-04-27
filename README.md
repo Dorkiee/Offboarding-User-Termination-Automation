@@ -178,10 +178,17 @@ Captured data includes:
 
 ## Screenshots
 <img width="857" height="559" alt="image" src="https://github.com/user-attachments/assets/8eec6dfc-f2a5-41d5-af08-70ddf2dafea3" />
+
+<img width="872" height="650" alt="image" src="https://github.com/user-attachments/assets/4d250d80-bf47-454f-82ab-277a28ae29ba" />
+
 <img width="443" height="741" alt="image" src="https://github.com/user-attachments/assets/2845ff2e-8773-4669-88d4-8feea0f8f977" />
+
 <img width="715" height="605" alt="image" src="https://github.com/user-attachments/assets/9f33ccf4-8489-4d41-a3b9-e30200e1529d" />
+
 <img width="640" height="675" alt="image" src="https://github.com/user-attachments/assets/aec69247-3bd6-49ef-83ac-739389539b0f" />
+
 <img width="644" height="547" alt="image" src="https://github.com/user-attachments/assets/107ddb01-8698-4d6b-9c49-42f61d16b5fa" />
+
 <img width="344" height="618" alt="image" src="https://github.com/user-attachments/assets/11c9c395-b613-428b-ae87-4534eafc8b43" />
 
 
