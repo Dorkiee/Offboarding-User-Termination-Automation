@@ -3,14 +3,14 @@ Author: Kehinde Oduyeye
 
 User Termination Workflow is a security automation built on Azure Logic Apps, designed to orchestrate rapid and consistent offboarding actions across identity, endpoint, and collaboration platforms.
 
-It ingests a user email via HTTP or Microsoft Teams interaction, executes a full account containment and device response workflow, and produces structured outputs for audit, tracking, and SOC visibility.
+It ingests a user email via HTTP or user input in power apps interaction, executes a full account containment and device response workflow, and produces structured outputs for audit, tracking, and SOC visibility.
 
 This automation significantly reduces manual effort during user offboarding or insider threat response by coordinating identity revocation, password resets, device isolation, and reporting into a single workflow.
 
 Blog post that goes into more details, can be found here: [https://www.kehinde-oduyeye.dev/#/blog/1764701331243](https://www.kehinde-oduyeye.dev/#/blog/1764701331243)
 
 ## Architecture Overview
-The workflow is triggered via HTTP request or interactive Teams Adaptive Card input. It then:
+The workflow is triggered via HTTP request or user input in power apps interaction. It then:
 
 Validates the target user
 Retrieves secrets securely from Key Vault
@@ -23,11 +23,11 @@ Applies conditional response actions:
 Isolate Windows endpoints
 Lock iOS devices (Lost Mode)
 Logs results into Azure Table Storage
-Sends a summarized report to Microsoft Teams
+Sends a summarized report back to the user in power apps
 Repeats the process for privileged (admin) account if detected
 
 ## Features
-This Logic App automates end-to-end user offboarding and containment by integrating Microsoft Graph, Defender for Endpoint, Azure Table Storage, Key Vault, and Microsoft Teams into a unified workflow.
+This Logic App automates end-to-end user offboarding and containment by integrating Microsoft Graph, Defender for Endpoint, Azure Table Storage, Key Vault, and power apps into a unified workflow.
 
 It performs:
 
@@ -53,8 +53,7 @@ It performs:
 
 ✔ Full workflow telemetry logging to Azure Table Storage
 
-✔ Adaptive Card-driven interaction and status reporting via Microsoft Teams
-
+✔ Adaptive Card-driven interaction and status reporting via Power apps
 ✔ Error handling and fallback HTTP logging for failed actions
 
 ## Repository Structure
